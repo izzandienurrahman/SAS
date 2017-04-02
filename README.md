@@ -54,6 +54,9 @@ The steps I'll be guiding is the one with .ino files in the RELEASE folder
 for the .ino files within DEBUG folder the steps are the same except that
 you open different .ino files
 
+*For easy database management, open XAMPP start Apache & MySQL go to web browser, type: localhost/phpmyadmin
+*from there on, create your db,table,insert contents of the table.
+
 STEP 1
 -------------------------------------------
 1.Open Arduino IDE using the given code inside RELEASE folder or DEBUG folder (if you want to debug)
