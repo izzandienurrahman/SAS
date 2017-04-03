@@ -7,16 +7,11 @@
   /***********WIFI CLIENT FUNCTION ROUTINE*******/
   /*********************************************/
 void wifiClient()
-{  
+{
+  ackPacket(); //send ack packet back to wemos rfid 
 //  Serial.printf("\n[Connecting to %s ... ", host);
   if (client.connect(host, 80))
-  {
-    
-    //send ack packet to wemos rfid 
-    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write(replyPacket);
-    Udp.endPacket();
-    
+  { 
 //    Serial.println("connected]");
 //    Serial.println("[Sending a request]");
 //    Serial.println(checkborrow);
@@ -94,3 +89,11 @@ void wifiClient()
     wifiClient();
   }
 }
+
+void ackPacket(){
+    //send ack packet to wemos rfid 
+    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    Udp.write(replyPacket);
+    Udp.endPacket();
+}
+

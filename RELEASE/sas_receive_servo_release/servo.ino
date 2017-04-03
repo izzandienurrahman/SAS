@@ -7,10 +7,10 @@
   /***********SERVO FUNCTION ROUTINE*************/
   /*********************************************/
 void svLock(Servo servo) {
-  servo.write(0);      //Define servo degree
+  servo.write(90);      //Define servo degree
   
 }
 
 void svUnlock(Servo servo) {
-  servo.write(180);    //Define servo degree
+  servo.write(0);    //Define servo degree
 }

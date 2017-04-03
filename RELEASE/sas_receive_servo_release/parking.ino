@@ -42,7 +42,7 @@ void fillSlot(){
     //attach each servo on the appropriate WeMos pin
     for(i=0;i<slot;i++){
       servo[i].attach(pinServo[i]);
-      servo[i].write(0); //initiate position (in degree angle)
+      servo[i].write(90); //initiate position (in degree angle)
     }
   }
 }
@@ -158,7 +158,7 @@ void borrowRoutine(){
 void returnRoutine(){
     if(returnBike()){
       svUnlock(servo[svPin]);
-      lockRoutine();
+      lockRoutine();    
     }
 }
 

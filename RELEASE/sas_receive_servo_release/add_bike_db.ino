@@ -1,4 +1,5 @@
 void addBike_db(String slotnum){
+if (client.connect(host, 80)){
     data = "terminal=" + terminal;
     data2= "&slotnum=" + slotnum;
     data+=data2;
@@ -21,4 +22,8 @@ void addBike_db(String slotnum){
 //        Serial.println(line);
 //      }
 //    }
+  }
+  else{
+     addBike_db(String(svPin));
+  }
 }    

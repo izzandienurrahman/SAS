@@ -19,7 +19,7 @@
 
 #define SS_PIN D8  //slave select pin //10 for ARUINO
 #define RST_PIN D4  //reset pin //5 for ARDUINO
-#define maxtimeout 20
+
 MFRC522 mfrc522(SS_PIN, RST_PIN);        // instatiate a MFRC522 reader object.
 MFRC522::MIFARE_Key key;//create a MIFARE_Key struct named 'key', which will hold the card information
 
@@ -35,6 +35,10 @@ String sfinal;
 String sCheck;
 
   /***********************************************/
+  /******************GENERAL VARIABLES***********/
+  /*********************************************/
+int i;//iterator
+  /***********************************************/
   /******************WIFI UDP VARIABLES**********/
   /*********************************************/
 //Object(s) instantiated
@@ -43,13 +47,13 @@ unsigned int remoteServoPort = 4210;
 unsigned int localUdpPort = 4210;
 char incomingPacket[255];  // buffer for incoming packets
 const char* host = "192.168.100.10";
-int timeout=maxtimeout;
   /***********************************************/
   /***********WIFI SETUP VARIABLES***************/
   /*********************************************/
 const char* ssid = "wifi";
 const char* password = "88888888";
-
+int maxtimeout = 60;
+int timeout;
 void setup() {
 Serial.begin(9600);        // Initialize serial communications with the PC
 SPI.begin();               // Init SPI bus
@@ -92,6 +96,7 @@ SPI.begin();               // Init SPI bus
 
 void loop()
 { 
+  sfinal=""; //clear string content for the next reading
   //initate RFID routine
   mfrc522.PCD_Init();        // Re-Init MFRC522 card (in case you wonder what PCD means: proximity coupling device)
         /*****************************************establishing contact with a tag/card**********************************************************************/ 
@@ -156,18 +161,29 @@ void loop()
         
          Serial.print("Waiting ack packet");
          while(!Udp.parsePacket()){
-          Serial.print(".");
-          digitalWrite(LED_BUILTIN, LOW);
-          delay(500);
+          if(timeout==maxtimeout){
+            timeout=0;//reset the timer
+            Serial.println("\nServer didn't respond, sorry :(");
+            Serial.println("Please refrain from using S.A.S system for a while");
+            noRespondBlink();//show no respond blink sign
+            break;
+          }
+          else{
+            Serial.print(".");
+            ledON();
+            delay(500);
+            timeout++;
+          }        
          }
-         
-         Serial.println("ACK received!");
-         Serial.println("Thank you for using SAS!");
-         Serial.println("Please remove your card");
-         digitalWrite(LED_BUILTIN, LOW);
+         if(Udp.available()){
+          timeout=0;//reset the timer
+          Serial.println("ACK received!");
+          Serial.println("Thank you for using SAS!");
+          Serial.println("Please remove your card");
+         }
+         ledON();
          delay(3000);
-         
-         sfinal=""; //clear string content.
 }
+
 
 

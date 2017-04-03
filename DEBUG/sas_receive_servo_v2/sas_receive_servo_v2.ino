@@ -33,7 +33,7 @@ String sReceived;
   /***********************************************/
   /***********SERVO SETUP VARIABLES**************/
   /*********************************************/
-#define slot 2 //# of parking slot available (depends on # of servo(s)), change it if you want.
+#define slot 3 //# of parking slot available (depends on # of servo(s)), change it if you want.
 Servo servo[slot]; //instantiate array of servo object depends on number of servo(s).
 int servoPin; //Pin D3 WeMos IO/10k,Pull-up
 
@@ -43,7 +43,7 @@ int servoPin; //Pin D3 WeMos IO/10k,Pull-up
 #define empty 24 //error code for full parking slot/empty bike
 int i;
 int parking[slot];
-int pinServo[slot]={D8,D4};
+int pinServo[slot]={D4,D8,D7};
 int svPin;
 String checkborrow;
 String checkreturn;

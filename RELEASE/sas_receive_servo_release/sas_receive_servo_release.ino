@@ -2,7 +2,7 @@
   PURPOSE:  IT Project Management - Final Project 
   Created by: Izzan Dienurrahman added and edited from Rudy Schlaf for www.makecourse.com
   DATE:   2/4/2017
-  Version: 1.2
+  Version: 1.2.1
   Type: RELEASE
 *******************************************/
 
@@ -32,7 +32,7 @@ String sReceived;
   /***********************************************/
   /***********SERVO SETUP VARIABLES**************/
   /*********************************************/
-#define slot 2 //# of parking slot available (depends on # of servo(s)), change it if you want.
+#define slot 3 //# of parking slot available (depends on # of servo(s)), change it if you want.
 Servo servo[slot]; //instantiate array of servo object depends on number of servo(s).
 int servoPin; //Pin D3 WeMos IO/10k,Pull-up
 
@@ -42,7 +42,7 @@ int servoPin; //Pin D3 WeMos IO/10k,Pull-up
 #define empty 24 //error code for full parking slot/empty bike
 int i;
 int parking[slot];
-int pinServo[slot]={D8,D4};
+int pinServo[slot]={D8,D7,D6};
 int svPin;
 String checkborrow;
 String checkreturn;
@@ -51,6 +51,9 @@ void setup()
 {
   Serial.begin(9600);
   Serial.println();
+
+  //WeMos built-in LED initiated as output.
+  pinMode(LED_BUILTIN, OUTPUT);
   
   //connect to sas_rfid access point
   WiFi.begin(ssid,password);
@@ -72,7 +75,8 @@ void setup()
 
   //fill parking slot w/ reference to database
   //and init servo position (in degree angle) 
-  fillSlot(); 
+  fillSlot();
+  setupDoneBlink();//blink sign of setup has been done 
 }
 
 void loop() 
@@ -105,6 +109,7 @@ void loop()
     checkreturn=returnCheck(); //check if there is any slot to return to
     
     //Access remote server
+    ledON();//status busy
     wifiClient();
 
 //    //flush redundant data (if any)
@@ -112,7 +117,8 @@ void loop()
     
     //clear string  
     sReceived="";
-  }
+  }  
+    ledOFF();//status idle
 }
 
 void printWifiStatus() {
