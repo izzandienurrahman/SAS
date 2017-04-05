@@ -1,8 +1,8 @@
 /******************************************
   PURPOSE:  IT Project Management - Final Project 
   Created by: Izzan Dienurrahman added and edited from Rudy Schlaf for www.makecourse.com
-  DATE:   2/4/2017
-  Version: 1.4
+  DATE:   5/4/2017
+  Version: 1.4.1
   Type: RELEASE 
 *******************************************/
 
@@ -12,17 +12,30 @@
  * Based on code by Miguel Balboa (circuitito.com), JEan, 2012.
  * Created by Izzan Dienurrahman | UI Computer Engineering Student, March 2017
 */
+/****ESP8266****/
 #include <ESP8266WiFi.h> //comment this if not needed
-#include <SPI.h>//include the SPI bus library
+/****RFID****/
 #include <MFRC522.h>//include the RFID reader library
+/****UDP*****/
 #include <WiFiUdp.h>
+/****OLED****/
+#include <Wire.h>  // Include Wire if you're using I2C
+#include <SFE_MicroOLED.h>
+/****SPI****/
+#include <SPI.h>//include the SPI bus library
 
-#define SS_PIN D8  //slave select pin //10 for ARUINO
-#define RST_PIN D4  //reset pin //5 for ARDUINO
+#define SS_PIN D8  //slave select pin //10 for WeMos
+#define RST_PIN D4  //reset pin //5 for WeMos
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);        // instatiate a MFRC522 reader object.
 MFRC522::MIFARE_Key key;//create a MIFARE_Key struct named 'key', which will hold the card information
 
+  /***********************************************/
+  /***********OLED SETUP VARIABLES***************/
+  /*********************************************/
+#define PIN_RESET 255  //
+#define DC_JUMPER 0  // I2C Addres: 0 - 0x3C, 1 - 0x3D
+MicroOLED oled(PIN_RESET, DC_JUMPER);  // I2C Example
   /***********************************************/
   /***********RFID SETUP VARIABLES***************/
   /*********************************************/
@@ -52,12 +65,21 @@ const char* host = "192.168.100.10";
   /*********************************************/
 const char* ssid = "wifi";
 const char* password = "88888888";
-int maxtimeout = 60;
+int maxtimeout = 20;
 int timeout;
 void setup() {
-Serial.begin(9600);        // Initialize serial communications with the PC
-SPI.begin();               // Init SPI bus
-
+  Serial.begin(9600);        // Initialize serial communications with the PC
+  SPI.begin();               // Init SPI bus
+  
+  /***********************************************/
+  /***************BEGIN OLED SETUP***************/
+  /*********************************************/     
+    // Before you can start using the OLED, call begin() to init
+    // all of the pins and configure the OLED.
+    oled.begin();
+    oled.clear(PAGE); // Clear the display's internal memory
+    oled.clear(ALL);  // Clear the library's display buffer
+  
   /***********************************************/
   /***************BEGIN WIFI SETUP***************/
   /*********************************************/                 
@@ -103,6 +125,7 @@ void loop()
      //Look for new cards (in case you wonder what PICC means: proximity integrated circuit card)
   if ( ! mfrc522.PICC_IsNewCardPresent()) {//if PICC_IsNewCardPresent returns 1, a new card has been found and we continue
     Serial.println("Waiting for new card....");
+    sysReady(); //display ready status on oled 
     delay(1000);
     return;//if it did not find a new card is returns a '0' and we return to the start of the loop
   }
@@ -158,11 +181,12 @@ void loop()
          Udp.beginPacket(host,remoteServoPort);
          Udp.write(sTemp);
          Udp.endPacket();
-        
+         conServer(); //display contacting server status
          Serial.print("Waiting ack packet");
          while(!Udp.parsePacket()){
           if(timeout==maxtimeout){
             timeout=0;//reset the timer
+            noRespond();//display no respond status
             Serial.println("\nServer didn't respond, sorry :(");
             Serial.println("Please refrain from using S.A.S system for a while");
             noRespondBlink();//show no respond blink sign
@@ -177,7 +201,11 @@ void loop()
          }
          if(Udp.available()){
           timeout=0;//reset the timer
+          authorized();//display authorized status from server
           Serial.println("ACK received!");
+          thankYou();//display thank you from oled
+          delay(2000);
+          plsRemove();//display please remove the card
           Serial.println("Thank you for using SAS!");
           Serial.println("Please remove your card");
          }
